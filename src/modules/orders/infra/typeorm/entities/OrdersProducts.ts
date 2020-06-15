@@ -17,7 +17,7 @@ class OrdersProducts {
   id: string;
 
   @ManyToOne(() => Order, order => order.order_products)
-  @JoinColumn({ name: 'order_id' })
+  @JoinColumn({ name: 'order_id', referencedColumnName: 'id' })
   order: Order;
 
   @ManyToOne(() => Product, product => product.order_products)
