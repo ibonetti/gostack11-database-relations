@@ -14,7 +14,7 @@ class FindOrderService {
   constructor(
     @inject('OrdersRepository')
     private ordersRepository: IOrdersRepository,
-    @inject('productsRepository')
+    @inject('ProductsRepository')
     private productsRepository: IProductsRepository,
     @inject('CustomersRepository')
     private customersRepository: ICustomersRepository,

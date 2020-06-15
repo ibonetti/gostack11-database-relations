@@ -34,18 +34,42 @@ class CreateOrderService {
     const ids = products.map(item => ({ id: item.id }));
     const prods = await this.productsRepository.findAllById(ids);
 
+    if (ids.length !== prods.length) {
+      throw new AppError('Invalid product');
+    }
+
     const productsDto = prods.map(item => {
       const prod = products.find(i => i.id === item.id);
       const quantity = prod ? prod.quantity : 0;
+      if (item.quantity < quantity) {
+        throw new AppError('Insufficient product quantity');
+      }
 
-      return { product_id: item.id, price: item.price, quantity };
+      return {
+        product_id: item.id,
+        price: item.price,
+        quantity,
+        newQuantity: item.quantity - quantity,
+      };
     });
 
     if (!customer) {
       throw new AppError('Customer not Found');
     }
 
-    return this.ordersRepository.create({ customer, products: productsDto });
+    const order = await this.ordersRepository.create({
+      customer,
+      products: productsDto,
+    });
+
+    await this.productsRepository.updateQuantity(
+      productsDto.map(item => ({
+        id: item.product_id,
+        quantity: item.newQuantity,
+      })),
+    );
+
+    return order;
   }
 }
 
